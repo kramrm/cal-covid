@@ -1,4 +1,4 @@
-# cal-c19data.py
+# cal-c19dash.py
 
 import requests
 import json
@@ -34,10 +34,19 @@ class County():
         self.data = self.getCounty(name)
 
     def __repr__(self):
-        return self.name
+        days = [k for k in self.data.keys()]
+        return f'{self.name} has {self.data[max(days)].totalcountconfirmed} total confirmed cases'
 
     def getCounty(self, name):
-        url = f'https://data.ca.gov/api/3/action/datastore_search_sql?sql=SELECT * from "926fd08f-cc91-4828-af38-bd45de97f8c3" WHERE "county" LIKE \'{name}\''
+        """Pull data from California Department of Public Health API.
+
+        Args:
+            name (string): County name to lookup
+
+        Returns:
+            dict
+        """
+        url = f'https://data.ca.gov/api/3/action/datastore_search_sql?sql=SELECT * from "926fd08f-cc91-4828-af38-bd45de97f8c3" WHERE "county" LIKE \'{name.title()}\''
         data = requests.get(url)
         data = json.loads(data.text)
         countyData = {}
@@ -48,24 +57,31 @@ class County():
 
 
 def getRecent(county, lookback=None):
+    """Display recent COVID-19 data
+
+    Args:
+        county (County): County object with the raw data.
+        lookback (int, optional): Number of past days to display. Defaults to all data.
+    """
     if lookback:
         lastWeek = datetime.now() - timedelta(days=lookback+1)
-        for day in county:
+        for day in sorted(county):
             if county[day].date > lastWeek:
                 print(county[day])
     else:
-        for day in county:
+        for day in sorted(county):
             print(county[day])
 
 
 if __name__ == "__main__":
     print('Data source: California Department of Public Health')
     countyName = input('Which county do you want to look up?\n')
-    days = input('How far back do you want to look? Leave blank to show all available data.\n')
-    if days:
-        days = int(days)
-    else:
-        days = None
-    covid = County(countyName.title())
-    getRecent(covid.data, days)
+    if countyName is not '':
+        days = input('How far back do you want to look? Leave blank to show all available data.\n')
+        if days:
+            days = int(days)
+        else:
+            days = None
+        covid = County(countyName)
+        getRecent(covid.data, days)
     
