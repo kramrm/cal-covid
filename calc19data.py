@@ -112,5 +112,3 @@ if __name__ == "__main__":
             getRecent(covid.data, days)
         else:
             print(covid.data[covid.lastDay()].long_desc())
-        # getRecent(covid.data, days)
-        
