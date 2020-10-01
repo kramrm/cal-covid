@@ -41,7 +41,7 @@ class County():
 
     def __repr__(self):
         days = [k for k in self.data.keys()]
-        return f'{self.name} has {self.data[max(days)].totalcountconfirmed} total confirmed cases'
+        return f'{self.name}'
     
     def lastDay(self):
         days = [k for k in self.data.keys()]
